@@ -142,14 +142,16 @@ Complete each phase, run its checks, fix failures, and provide a brief explanati
 - [x] Phase 7: Streamlit Command Center with KPIs, sorted queue, offline Plotly schematic, completed agent findings, read-only selected evidence, timed Start/Continue/Pause/Reset, and stable session selection. Four UI/presentation tests pass; native Chrome layout and interaction checks completed. See [the walkthrough](COMMAND_CENTER.md).
 - [x] Phase 7 refinement: geographic risk markers with facility icons, circuit × time heat map with no future leakage, shared risk layers, deduplicated agent analysis history, compact overview cards, and grid-strain driver visualization.
 - [x] Playback refinement: continuous slider and gradual interpolation between key moments, configurable 1–12 simulated minutes per second, automatic key-moment pauses, Continue/manual Pause, checkpoint-safe elapsed time, and reset. Sudden equipment faults remain discrete events; existing scenario scoring remains unchanged.
-- [ ] Phases 8–10: investigation and human approval/simulation, assets/log/outage branch, and interview polish.
+- [x] Phase 8: evidence-first investigation workspace, assessment revisions, retrieval/citation, evidence quality, and explicit human approval controls.
+- [ ] Phase 9: separate assets/log/outage branch remains future work.
+- [x] Phase 10: interview readiness materials, About framing, three-minute demo script, interview notes, and clean offline validation.
 
-Validation: `python -m unittest discover -s tests -v` passes 58 tests (38 domain
-checks + Command Center/map/activity/playback/continuous-time checks). AppTest exercises two complete playback/reset
-cycles, selected evidence, stable reruns, correct KPI totals, and missing data.
-Native Chrome checks cover rendered layout and interactions. The Command Center
-is implemented; approval controls and action execution are not. The original
-build brief and decomposition remain unchanged.
+Validation: `python -m unittest discover -s tests -v` passes 78 tests covering domain
+contracts, agents, evidence, retrieval, decision logging, evaluation, Command Center
+interactions, playback, selected evidence, stable reruns, correct KPI totals, and
+missing-data handling. Native browser checks cover the full scenario, reset, and a second
+complete run. Approval controls record review decisions; no operational action executes.
+The original build brief and decomposition remain unchanged.
 
 ### Suggested time allocation
 
@@ -210,14 +212,15 @@ Explain the tradeoff, advance the scenario, open C-184, trace the customer/hospi
 
 Be ready to explain why an ontology adds context, which calculations are deterministic, what generative AI contributes if enabled, why approval is separate from recommendation, and why a prototype indicator is not a wildfire probability.
 
-- [ ] App launches using the documented setup in a clean environment.
-- [ ] Complete offline demo works without secrets or external services.
+- [x] App launches using the documented setup in a clean environment.
+- [x] Complete offline demo works without secrets or external services.
 - [ ] Main scenario and outage branch meet their acceptance gates.
 - [x] Impact calculations are traceable and do not double-count.
-- [ ] Decisions are explicit, recorded, and safe against duplicate reruns.
-- [ ] Tests pass; UI walkthrough is verified twice from Reset.
-- [ ] README, screenshots, and demo script reflect actual behavior.
+- [x] Decisions are explicit, recorded, and safe against duplicate reruns.
+- [x] Tests pass; UI walkthrough is verified twice from Reset.
+- [x] README, interview notes, and three-minute demo script reflect actual behavior.
 - [x] Original documents remain unchanged.
-- [ ] Public research claims are checked against their cited sources before interview submission; synthetic operational values are labeled throughout.
+- [x] Public research claims are checked against their cited sources before interview submission; synthetic operational values are labeled throughout.
 
-**Next implementation task:** Phase 8: incident investigation and explicit human approval controls with tested simulated state transitions. Stop here until the next requested implementation phase.
+**Next implementation task:** Phase 9 remains optional future work: a separate explicitly
+simulated outage/restoration branch. The interview demo is complete without it.

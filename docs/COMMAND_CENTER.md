@@ -76,7 +76,7 @@ unresolved. This is a scripted prototype update, clearly labeled as such.
 
 ## Verification
 
-`python -m unittest discover -s tests -v` runs 58 tests: all 38 existing domain
+`python -m unittest discover -s tests -v` runs 78 tests: all existing domain
 checks plus Command Center/map/activity/playback/continuous-time tests. The new tests exercise actual Streamlit
 widgets through `AppTest`, covering two complete advance/reset runs, empty state,
 KPI totals, priority order, stable selection, selection-dependent evidence,
@@ -135,9 +135,9 @@ deduplicated impact and proposed response. A status indicator is shown while
 current evaluation runs. No artificial delays or fabricated dispatch activity
 are used. This is session-local evaluation history, not a durable audit log.
 
-All 58 tests pass, including map coordinates/scores, blank future stages, continuous
-interpolation, and activity history persistence/deduplication/reset. Phase 8 remains
-unimplemented.
+All 78 tests pass, including map coordinates/scores, blank future stages, continuous
+interpolation, activity history persistence/deduplication/reset, evidence inspection,
+and human-review workflow controls.
 
 ## Continuous playback and key moments
 
@@ -155,6 +155,6 @@ clamped to the next key moment, and unused elapsed time is discarded on pause.
 Pauses do not accumulate elapsed time. Session state owns the clock, and a
 Streamlit timer fragment updates it without rebuilding charts every second.
 
-Verification now includes 58 tests: clock arithmetic, checkpoint clamping,
+Verification now includes 78 tests: clock arithmetic, checkpoint clamping,
 idempotent ticks, manual pause/resume, and the existing two full UI replays driven
 by playback with injected time rather than waiting in real time.

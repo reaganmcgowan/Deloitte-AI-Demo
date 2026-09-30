@@ -4,7 +4,7 @@
 
 GridGuard explores how a fictional California electric utility can connect grid, weather, asset, customer, and crew information to identify emerging risks and support human decisions about reliability and public safety.
 
-**Status:** Phases 1–7 complete: the Streamlit Command Center now centers an investigation queue and Circuit 184 workspace, with source-labeled evidence, explicit unknowns, response options, a synthetic field-report update, geographic context, an agent data-flow graph, and continuous scenario playback. All 58 tests pass. Production integrations remain future work.
+**Status:** Interview-ready synthetic prototype. The Streamlit Command Center centers an investigation queue and Circuit 184 workspace, with source-labeled evidence, explicit unknowns, response options, a synthetic field-report update, geographic context, an agent data-flow graph, continuous scenario playback, evidence files, and human review controls. Phases 1–8 of the PSPS pivot are implemented and documented. The full suite has 78 passing tests. Production integrations remain future work.
 
 > GridGuard is a conceptual prototype using synthetic data. It is not a real grid-control, wildfire-prediction, or emergency-response system.
 
@@ -14,6 +14,7 @@ GridGuard explores how a fictional California electric utility can connect grid,
 2. [Implementation plan](docs/IMPLEMENTATION_PLAN.md): scope, architecture, build sequence, and acceptance checks.
 3. [Original build brief](CODEX_BUILD_PROMPT.md): original requirements and implementation guidance.
 4. [PSPS pivot brief](docs/PSPS_PIVOT_BRIEF.md) and [pivot development plan](docs/PSPS_PIVOT_PLAN.md): proposed product direction, evidence boundaries, validation cases, and phased backlog for review.
+5. [PSPS interview demo script](docs/PSPS_DEMO_SCRIPT.md): a repeatable 3–5 minute evidence-first walkthrough.
 
 The two supplied documents are preserved verbatim. The decomposition provides product context; the build brief provides prototype constraints; the implementation plan resolves practical details for the build.
 
@@ -119,12 +120,13 @@ The facility is already included in the customer count. Impact helpers deduplica
 circuits before joining customer areas and facilities. They model circuit-wide
 exposure, not detailed electrical connectivity or predicted outages.
 
-The 58 tests verify the original data contracts plus risk boundaries, agent evidence,
+The 78 tests verify the original data contracts plus risk boundaries, agent evidence,
 weather-only behavior, incident deduplication, exact main-incident timing, reset,
 and non-executing recommendations. Original source briefs remain unchanged.
 UI tests also check rerun safety, stable selection, continuous slider movement, speed
-controls, and two complete playback/reset runs. Work stops after Phase 7; Phase 8 will
-add investigation and human approval.
+controls, evidence inspection, and two complete playback/reset runs. The final prototype
+includes the investigation workspace, evidence revisions, decision log, and human review
+controls.
 
 Run `python -m src.scenario` for the readable five-stage demonstration, or add
 `--json` for full evidence. Read [the scoring and agent contract](docs/SCORING.md)
@@ -133,11 +135,13 @@ for sample output. At 4:00 PM, T-882 combines an electrical anomaly with 46 mph
 wind and 11% humidity, producing an 88.4/100 CRITICAL combined prototype indicator.
 Three overlapping category findings still expose only 8,420 accounts and one
 hospital. No electricity state or crew availability changes: recommendations are
-proposals that require human review. The approval workflow is not implemented yet.
+proposals that require human review and are recorded with their evidence version.
 
 ## Screenshots and demo recording
 
-Add screenshots of the command center, incident investigation, and decision log after the working demo is verified. No screenshots or completed features are claimed at this stage.
+The command center, About page, evidence files, incident investigation, and decision log
+are ready to demonstrate from a clean local run. Screenshots and a video can be added as
+optional presentation artifacts.
 
 ## Limitations and roadmap
 

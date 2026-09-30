@@ -99,8 +99,9 @@ Each proposal includes a stable recommendation ID, incident ID (or `None` for a
 circuit assessment without an incident), revision equal to the evaluated stage,
 `awaiting_human_review` status, and `executed=False`. Re-evaluating a stage produces
 the same revision. Crew IDs are candidates only; no reservation occurs. Preparing
-review does not shut off electricity. Phase 8 will implement approval and state
-transitions; no action execution function exists in Phases 4–6.
+review does not shut off electricity. The human-review workflow records approval,
+modification, rejection, or information requests with an assessment version and
+evidence IDs; no action execution function exists.
 
 ## Scenario and incident semantics
 

@@ -162,7 +162,7 @@ def geographic_figure(report: dict, tables: dict, layer: str, basemap: bool = Fa
             text=[facility.name]*len(shape), hovertemplate="%{text}<extra></extra>", showlegend=False))
     figure.update_layout(map=dict(style="open-street-map" if basemap else "white-bg",
                                   center=dict(lat=float(locations.latitude.mean()), lon=float(locations.longitude.mean())), zoom=8),
-                         height=480, margin=dict(l=0,r=0,t=10,b=0),
+                         height=580, margin=dict(l=0,r=0,t=6,b=0),
                          legend=dict(orientation="h", y=-.04), uirevision="geographic")
     return figure
 
@@ -182,6 +182,51 @@ def heatmap_figure(reports: list[dict], layer: str) -> go.Figure:
     figure.update_layout(height=350, margin=dict(l=5,r=5,t=15,b=5),
                          yaxis=dict(autorange="reversed"), xaxis=dict(side="top"),
                          plot_bgcolor="#eef1f4")
+    return figure
+
+
+def risk_timeline_figure(reports: list[dict], circuit_id: str = "C-184") -> go.Figure:
+    """Compact three-signal timeline for the selected circuit."""
+    ordered = sorted({report["stage"]: report for report in reports}.values(), key=lambda item: item["stage"])
+    times = [STAGE_TIMES[report["stage"] - 1] for report in ordered]
+    finding = [report["findings"][circuit_id] for report in ordered]
+    series = [
+        ("Grid strain", [item["grid"]["grid_strain"]["score"] for item in finding], "#2f6680"),
+        ("Environmental exposure", [item["wildfire"]["environment"]["score"] for item in finding], "#b9822b"),
+        # This is intentionally a gated indicator: weather alone cannot activate
+        # electrical/wildfire exposure. The label makes the policy gate visible
+        # to operators instead of making a pre-incident zero look like missing data.
+        ("Combined exposure (gated)", [item["wildfire"]["combined"]["score"] for item in finding], "#c43d4c"),
+    ]
+    figure = go.Figure()
+    for name, values, color in series:
+        figure.add_trace(go.Scatter(x=times, y=values, mode="lines+markers", name=name,
+                                    line=dict(color=color, width=2.5), marker=dict(size=7),
+                                    hovertemplate=f"{name}: %{{y:.1f}}/100<extra></extra>"))
+    figure.update_layout(height=250, margin=dict(l=5, r=8, t=8, b=5), yaxis=dict(range=[0, 100], title="Indicator"),
+                         legend=dict(orientation="h", y=1.15), paper_bgcolor="rgba(0,0,0,0)",
+                         plot_bgcolor="rgba(0,0,0,0)", uirevision=f"timeline-{circuit_id}")
+    return figure
+
+
+def utilization_rank_figure(tables: dict) -> go.Figure:
+    """Rank current circuit utilization in one compact horizontal chart."""
+    circuits = tables["circuits"].copy()
+    circuits["utilization_pct"] = 100 * circuits["current_load_mw"] / circuits["capacity_mw"]
+    circuits = circuits.sort_values("utilization_pct")
+    colors = [boundary_color(value) for value in circuits["utilization_pct"]]
+    circuits["headroom_mw"] = circuits["capacity_mw"] - circuits["current_load_mw"]
+    figure = go.Figure(go.Bar(y=circuits["circuit_id"], x=circuits["utilization_pct"], orientation="h",
+                              text=[f"{value:.1f}%" for value in circuits["utilization_pct"]],
+                              textposition="outside", cliponaxis=False,
+                              marker_color=colors, customdata=circuits[["current_load_mw", "capacity_mw", "headroom_mw"]],
+                              hovertemplate="%{y} · %{x:.1f}% of max capacity<br>"
+                                            "Current load: %{customdata[0]:.2f} MW<br>"
+                                            "Maximum capacity: %{customdata[1]:.2f} MW<br>"
+                                            "Remaining headroom: %{customdata[2]:.2f} MW<extra></extra>"))
+    figure.update_layout(height=300, margin=dict(l=5, r=10, t=8, b=8), xaxis=dict(range=[0, 110], title="Capacity in use (%)"),
+                         yaxis=dict(title=None), showlegend=False, paper_bgcolor="rgba(0,0,0,0)",
+                         plot_bgcolor="rgba(0,0,0,0)", uirevision="utilization-rank")
     return figure
 
 
@@ -238,15 +283,21 @@ def agent_graph_figure(findings: dict, circuit_id: str) -> go.Figure:
     ]
     node_colors = (["#d7e8ef"] * 5 + ["#2f6680", "#b9822b", "#6675a8", "#6b5b95"]
                    + ["#d9edf0", "#f4e5bd", "#e5e1f0", "#e6d8ee"])
+    # Fixed columns keep the reasoning direction legible; generous vertical spacing
+    # prevents the input and output labels from collapsing into one dense band.
+    node_x = ([0.02] * 5 + [0.34] * 4 + [0.72] * 4)
+    node_y = ([0.02, 0.23, 0.44, 0.65, 0.86] +
+              [0.08, 0.34, 0.60, 0.86] +
+              [0.08, 0.34, 0.60, 0.86])
     figure = go.Figure(go.Sankey(
         arrangement="fixed",
-        node=dict(label=labels, color=node_colors, pad=22, thickness=22,
+        node=dict(label=labels, color=node_colors, pad=28, thickness=24, x=node_x, y=node_y,
                   customdata=descriptions, hovertemplate="%{label}<br>%{customdata}<extra></extra>"),
         link=dict(source=[source for source, _, _ in links], target=[target for _, target, _ in links],
                   value=[1] * len(links), label=[label for _, _, label in links],
                   hovertemplate="%{label}<extra></extra>"),
     ))
-    figure.update_layout(title=f"Agent reasoning flow · {circuit_id}", height=430,
+    figure.update_layout(title=f"Agent reasoning flow · {circuit_id}", height=620,
                          margin=dict(l=8, r=8, t=45, b=8), paper_bgcolor="rgba(0,0,0,0)",
                          font=dict(size=11), uirevision="agent-flow")
     return figure

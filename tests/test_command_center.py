@@ -7,6 +7,7 @@ from streamlit.testing.v1 import AppTest
 
 from src.command_center import (activity_frame, agent_graph_figure, agent_reasoning_frame,
                                 geographic_figure, heatmap_figure, network_figure)
+from src.investigation import assessment_revision, assessment_workspace
 from src.ontology import DataQualityError
 from src.scenario import Scenario
 
@@ -42,6 +43,23 @@ class CommandCenterTests(unittest.TestCase):
         self.assertEqual(app.session_state["scenario"].run_id, run)
         self.assertTrue(any("Evidence · C-186" in item.value for item in app.subheader))
 
+    def test_continue_from_two_pm_checkpoint_renders_without_exception(self):
+        app = self.app()
+        # Put the real session at the first automatic pause, then click the same
+        # Continue control used in the browser. This targets the reported failure.
+        app.session_state["scenario"].seek(60)
+        app.session_state["playback"].seek(60)
+        app.session_state["stage_reports"] = {1: app.session_state["scenario"].seek(0),
+                                                2: app.session_state["scenario"].seek(60)}
+        app.session_state["report"] = app.session_state["stage_reports"][2]
+        app.session_state["tables"] = app.session_state["scenario"].snapshot()
+        app.session_state["sample_minute"] = 60
+        app.run()
+        self.assertEqual(app.session_state["scenario"].stage, 2)
+        app.button(key="resume_playback").click().run()
+        self.assertFalse(app.exception)
+        self.assertIn(app.session_state["scenario"].stage, (2, 3))
+
     def test_agent_graph_exposes_inputs_reasoning_and_outputs(self):
         report = Scenario().evaluate()
         findings = report["findings"]["C-184"]
@@ -53,6 +71,38 @@ class CommandCenterTests(unittest.TestCase):
         frame = agent_reasoning_frame(findings)
         self.assertEqual(frame["Agent"].tolist(), ["Grid Reliability", "Wildfire Risk", "Impact", "Response"])
         self.assertIn("energized anomaly", frame.iloc[1]["Reasoning"])
+        self.assertEqual(list(figure.data[0].node.x), [0.02] * 5 + [0.34] * 4 + [0.72] * 4)
+        self.assertEqual(figure.layout.height, 620)
+
+    def test_assessment_workspace_binds_evidence_unknowns_and_options_to_version(self):
+        scenario = Scenario()
+        report = scenario.evaluate()
+        workspace = assessment_workspace(report, scenario.baseline_tables(), "C-184", version=3)
+        self.assertEqual(workspace["assessment_version"], 3)
+        self.assertEqual(workspace["impact"]["customers"], 8420)
+        self.assertEqual(workspace["impact"]["critical_facilities"], ["F-001"])
+        self.assertEqual(len(workspace["unknowns"]), 2)
+        self.assertEqual(len(workspace["options"]), 5)
+        self.assertIn("no PSPS authorization", workspace["decision_gate"])
+        self.assertTrue(any(row["source_id"] == "FAC-F001-READINESS-20260814-01" for row in workspace["evidence"]))
+        self.assertFalse(workspace["evidence_quality"]["ready_for_decision"])
+
+    def test_evidence_files_tab_inspects_selected_source_record(self):
+        app = self.app()
+        source_picker = app.selectbox(key="evidence_source_C-184")
+        self.assertIn("Hospital readiness record", source_picker.options)
+        source_picker.select("Hospital readiness record").run()
+        self.assertFalse(app.exception)
+        self.assertTrue(any("No current hospital backup-power readiness verification" in item.value
+                            for item in app.info))
+
+    def test_field_report_revision_changes_assessment_and_preserves_unknown(self):
+        revision = assessment_revision(True, 2, "2026-08-15T16:00:00-07:00")
+        self.assertEqual(revision["version"], 2)
+        self.assertIn("visible equipment damage", revision["what_changed"])
+        self.assertIn("backup-power readiness", revision["still_unresolved"])
+        initial = assessment_revision(False, 1, "2026-08-15T13:00:00-07:00")
+        self.assertNotEqual(initial["assessment_change"], revision["assessment_change"])
 
     def test_final_kpis_queue_selection_and_reset_twice(self):
         app = self.app()
@@ -73,9 +123,14 @@ class CommandCenterTests(unittest.TestCase):
             app.button(key="introduce_field_report").click().run()
             self.assertTrue(app.session_state["field_report"])
             self.assertEqual(app.session_state["assessment_version"], 2)
+            app.button(key="introduce_field_report").click().run()
+            self.assertEqual(app.session_state["assessment_version"], 2)
+            self.assertEqual(len(app.session_state["assessment_history"]), 2)
             self.assertTrue(any("FR-001" in item.value for item in app.success))
             app.button(key="decision_C-184_0").click().run()
             self.assertEqual(app.session_state["decision_log"][0]["action"], "Request missing information")
+            self.assertEqual(app.session_state["decision_log"][0]["operational_effect"], "None; preparation/review workflow only")
+            self.assertTrue(app.session_state["decision_log"][0]["evidence_ids"])
             self.assertEqual(app.session_state["scenario"].stage, 5)
             app.button(key="reset_scenario").click().run()
             self.assertEqual(app.session_state["scenario"].stage, 1)
