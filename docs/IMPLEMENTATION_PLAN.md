@@ -1,6 +1,6 @@
 # GridGuard implementation plan
 
-**Status:** Planned; no application implementation completed.
+**Status:** Phases 1–7 completed and verified. Phases 8–10 remain planned.
 **Target:** An understandable, interview-ready local demo in approximately two working days.
 
 ## 1. Outcome and scope
@@ -36,7 +36,7 @@ Real utility or weather integrations, live controls, actual crew dispatch, authe
 | Weather mapping | Add `zone_id` to circuits and weather. Store fire-zone severity on circuits for the MVP; a separate FireRiskArea table is deferred. |
 | Customer totals | Use `customer_areas.csv` as the source of truth; validate any circuit-level cached totals against it. |
 | State | Streamlit session state owns scenario stage, incidents, recommendations, decisions, and simulation overlays. Pure domain functions do not import Streamlit. |
-| Navigation | Advance stages forward. Replay earlier conditions through Reset, which starts a new simulation run. This avoids inconsistent history. |
+| Navigation | Move through the synthetic day with a continuous slider or timed playback. Playback pauses at key moments; Continue resumes, and Reset starts a new simulation run. |
 | Visual | Use a Plotly schematic network or geographic scatter without external tiles, so the demo works offline. |
 | AI mode | Clearly display template mode or optional LLM-assisted explanation mode. Deterministic modules perform all calculations. |
 | Repository tooling | Add dependency pins only when installed and checked. Git initialization, commits, and remote publishing are separate from this organization task. |
@@ -131,6 +131,26 @@ Complete each phase, run its checks, fix failures, and provide a brief explanati
 | 9. Assets and log | Linked asset view, load chart, decision log, and outage/restoration branch. | State, crew availability, affected customers, and log agree; repair/restoration closes the outage without claiming fire weather disappeared. |
 | 10. Interview readiness | Final README, verified screenshots, demo script, and honest mode labels. | Complete a 3–5 minute offline walkthrough twice from Reset; run focused tests and clean-environment launch; distinguish implemented features from roadmap. |
 
+### Completed implementation checklist
+
+- [x] Phase 1: fresh `.venv` on Python 3.14.7; pandas 3.0.6 and Streamlit 1.64.0 installed and pinned; `pip check` passes; minimal launch page executes and serves locally.
+- [x] Phase 2: six CSVs generated with seed 42; 18 assets, 6 circuits, 15 stage/zone weather records, 12 areas, 3 facilities, 4 crews; unit contract documented in `data/README.md`; reproducibility and validation tested.
+- [x] Phase 3: validated lookup helpers and deduplicated impact joins; T-882 → C-184 → 8,420 customers and one hospital; weather and eligible crew lookup tested; invalid links fail explicitly.
+- [x] Phase 4: explicit weighted risk factors, severity boundaries, electrical anomaly and environmental conjunction gates, and severity-first priority. Eight focused risk tests pass; see [SCORING.md](SCORING.md).
+- [x] Phase 5: four deterministic agents, evidence-linked template explanations, eligible crew candidates, and recommendations with alternatives and tradeoffs. Four agent tests pass; no action execution.
+- [x] Phase 6: five deterministic snapshots, forward progression, idempotent incident registry, and reset under a new run ID. Eight scenario tests pass; final combined incident is CRITICAL with 8,420 accounts and one hospital. See [the walkthrough](PHASE_4_6_DEMO.md).
+- [x] Phase 7: Streamlit Command Center with KPIs, sorted queue, offline Plotly schematic, completed agent findings, read-only selected evidence, timed Start/Continue/Pause/Reset, and stable session selection. Four UI/presentation tests pass; native Chrome layout and interaction checks completed. See [the walkthrough](COMMAND_CENTER.md).
+- [x] Phase 7 refinement: geographic risk markers with facility icons, circuit × time heat map with no future leakage, shared risk layers, deduplicated agent analysis history, compact overview cards, and grid-strain driver visualization.
+- [x] Playback refinement: continuous slider and gradual interpolation between key moments, configurable 1–12 simulated minutes per second, automatic key-moment pauses, Continue/manual Pause, checkpoint-safe elapsed time, and reset. Sudden equipment faults remain discrete events; existing scenario scoring remains unchanged.
+- [ ] Phases 8–10: investigation and human approval/simulation, assets/log/outage branch, and interview polish.
+
+Validation: `python -m unittest discover -s tests -v` passes 58 tests (38 domain
+checks + Command Center/map/activity/playback/continuous-time checks). AppTest exercises two complete playback/reset
+cycles, selected evidence, stable reruns, correct KPI totals, and missing data.
+Native Chrome checks cover rendered layout and interactions. The Command Center
+is implemented; approval controls and action execution are not. The original
+build brief and decomposition remain unchanged.
+
 ### Suggested time allocation
 
 **Day 1 (~8 hours):** environment 0.5h; datasets and relationships 2h; risk logic 1.5h; agents 1.5h; scenario and integrated checks 2.5h.
@@ -193,11 +213,11 @@ Be ready to explain why an ontology adds context, which calculations are determi
 - [ ] App launches using the documented setup in a clean environment.
 - [ ] Complete offline demo works without secrets or external services.
 - [ ] Main scenario and outage branch meet their acceptance gates.
-- [ ] Impact calculations are traceable and do not double-count.
+- [x] Impact calculations are traceable and do not double-count.
 - [ ] Decisions are explicit, recorded, and safe against duplicate reruns.
 - [ ] Tests pass; UI walkthrough is verified twice from Reset.
 - [ ] README, screenshots, and demo script reflect actual behavior.
-- [ ] Original documents remain unchanged.
+- [x] Original documents remain unchanged.
 - [ ] Public research claims are checked against their cited sources before interview submission; synthetic operational values are labeled throughout.
 
-**Next implementation task:** Phase 1 environment setup, followed by Phase 2 synthetic data generation and a reviewable sample. This organization task stops before building the application.
+**Next implementation task:** Phase 8: incident investigation and explicit human approval controls with tested simulated state transitions. Stop here until the next requested implementation phase.

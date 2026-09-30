@@ -1,0 +1,19 @@
+asset_id,asset_name,asset_type,circuit_id,capacity_mw,current_load_mw,temperature_f,baseline_temperature_f,age_years,condition_score,latitude,longitude,status
+T-882,Synthetic Transformer 882,transformer,C-184,30.0,17.88,98.3,98.3,28,78,34.39,-118.54,operational
+S-882,Synthetic Substation 882,substation,C-184,36.0,17.88,105.2,105.2,22,77,34.39,-118.54,operational
+L-882,Synthetic Distribution Line 882,distribution_line,C-184,33.0,17.88,103.9,103.9,6,75,34.39,-118.54,operational
+T-883,Synthetic Transformer 883,transformer,C-185,34.0,17.48,103.4,103.4,27,95,34.415,-118.515,operational
+S-883,Synthetic Substation 883,substation,C-185,40.8,17.48,105.5,105.5,18,82,34.415,-118.515,operational
+L-883,Synthetic Distribution Line 883,distribution_line,C-185,37.4,17.48,101.7,101.7,13,75,34.415,-118.515,operational
+T-884,Synthetic Transformer 884,transformer,C-186,38.0,23.33,99.2,99.2,11,85,34.44,-118.49,operational
+S-884,Synthetic Substation 884,substation,C-186,45.6,23.33,96.5,96.5,17,78,34.44,-118.49,operational
+L-884,Synthetic Distribution Line 884,distribution_line,C-186,41.8,23.33,100.4,100.4,16,94,34.44,-118.49,operational
+T-885,Synthetic Transformer 885,transformer,C-187,42.0,22.67,96.9,96.9,17,77,34.465,-118.465,operational
+S-885,Synthetic Substation 885,substation,C-187,50.4,22.67,103.3,103.3,25,94,34.465,-118.465,operational
+L-885,Synthetic Distribution Line 885,distribution_line,C-187,46.2,22.67,108.3,108.3,16,93,34.465,-118.465,operational
+T-886,Synthetic Transformer 886,transformer,C-188,46.0,24.33,106.6,106.6,7,82,34.49,-118.44,operational
+S-886,Synthetic Substation 886,substation,C-188,55.2,24.33,108.0,108.0,17,83,34.49,-118.44,operational
+L-886,Synthetic Distribution Line 886,distribution_line,C-188,50.6,24.33,101.8,101.8,16,80,34.49,-118.44,operational
+T-887,Synthetic Transformer 887,transformer,C-189,50.0,27.78,109.0,109.0,25,77,34.515,-118.415,operational
+S-887,Synthetic Substation 887,substation,C-189,60.0,27.78,104.1,104.1,10,92,34.515,-118.415,operational
+L-887,Synthetic Distribution Line 887,distribution_line,C-189,55.0,27.78,105.9,105.9,10,89,34.515,-118.415,operational

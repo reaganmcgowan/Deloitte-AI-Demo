@@ -1,0 +1,5 @@
+# Direct dependencies verified on Python 3.14.7 (macOS arm64).
+# NumPy is installed transitively by pandas; optional LLM packages are deferred.
+pandas==3.0.6
+streamlit==1.64.0
+plotly==7.1.0

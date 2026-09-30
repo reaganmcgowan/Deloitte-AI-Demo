@@ -1,0 +1,4 @@
+facility_id,name,facility_type,circuit_id,backup_power,latitude,longitude
+F-001,Synthetic Foothill Hospital,hospital,C-184,True,34.395,-118.535
+F-002,Synthetic Valley Fire Station,fire_station,C-185,True,34.42,-118.51
+F-003,Synthetic Ridge Water Facility,water_facility,C-187,False,34.44,-118.49

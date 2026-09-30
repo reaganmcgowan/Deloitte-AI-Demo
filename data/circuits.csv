@@ -1,0 +1,7 @@
+circuit_id,circuit_name,zone_id,capacity_mw,current_load_mw,demand_trend_pct,fire_risk_zone,customers_served,energized
+C-184,Santa Clarita Foothills service area,Z-01,30.0,17.88,0.0,high,8420,True
+C-185,Newhall service area,Z-02,34.0,17.48,0.0,moderate,6200,True
+C-186,Valencia service area,Z-03,38.0,23.33,0.0,low,4800,True
+C-187,Saugus service area,Z-01,42.0,22.67,0.0,high,7100,True
+C-188,Canyon Country service area,Z-02,46.0,24.33,0.0,moderate,3900,True
+C-189,Agua Dulce service area,Z-03,50.0,27.78,0.0,low,5600,True

@@ -4,7 +4,7 @@
 
 GridGuard explores how a fictional California electric utility can connect grid, weather, asset, customer, and crew information to identify emerging risks and support human decisions about reliability and public safety.
 
-**Status:** Repository organized; implementation planned. The application and datasets have not been built yet.
+**Status:** Phases 1–7 complete: the Streamlit Command Center now centers an investigation queue and Circuit 184 workspace, with source-labeled evidence, explicit unknowns, response options, a synthetic field-report update, geographic context, an agent data-flow graph, and continuous scenario playback. All 58 tests pass. Production integrations remain future work.
 
 > GridGuard is a conceptual prototype using synthetic data. It is not a real grid-control, wildfire-prediction, or emergency-response system.
 
@@ -13,6 +13,7 @@ GridGuard explores how a fictional California electric utility can connect grid,
 1. [Problem decomposition](docs/GRIDGUARD_DECOMPOSITION.md): client, stakeholders, use cases, research, and interview framing.
 2. [Implementation plan](docs/IMPLEMENTATION_PLAN.md): scope, architecture, build sequence, and acceptance checks.
 3. [Original build brief](CODEX_BUILD_PROMPT.md): original requirements and implementation guidance.
+4. [PSPS pivot brief](docs/PSPS_PIVOT_BRIEF.md) and [pivot development plan](docs/PSPS_PIVOT_PLAN.md): proposed product direction, evidence boundaries, validation cases, and phased backlog for review.
 
 The two supplied documents are preserved verbatim. The decomposition provides product context; the build brief provides prototype constraints; the implementation plan resolves practical details for the build.
 
@@ -23,6 +24,12 @@ Operators must balance keeping electricity available against electrical conditio
 The planned prototype connects those signals in a small operational model and makes the reasoning visible:
 
 **Monitor → Detect → Investigate → Assess impact → Recommend → Human decision → Simulated action → Review outcome**
+
+In the model, `C-184` means circuit 184: a feeder responsible for a defined service
+area. The circuit is the operational parent for its substation, transformer, and
+distribution line, and it links to customer areas, facilities, weather zones, and
+eligible crews. Other circuits have different load, temperature, and condition
+trajectories, while C-184 remains the intentionally designed main incident.
 
 ## Planned architecture
 
@@ -53,37 +60,80 @@ Calculations, impact counts, action eligibility, and state changes will be deter
 
 ```text
 Deloitte AI Demo/
+├── app.py                  # Streamlit Command Center
+├── requirements.txt        # Tested pandas and Streamlit versions
 ├── README.md
-├── CODEX_BUILD_PROMPT.md
-├── .gitignore
+├── CODEX_BUILD_PROMPT.md    # Original, unchanged
 ├── docs/
-│   ├── GRIDGUARD_DECOMPOSITION.md
+│   ├── GRIDGUARD_DECOMPOSITION.md  # Original, unchanged
 │   └── IMPLEMENTATION_PLAN.md
-├── data/README.md
-├── src/README.md
-└── tests/README.md
+├── data/                   # Six CSVs and documented units
+├── src/
+│   ├── __init__.py
+│   ├── data_generator.py
+│   ├── ontology.py
+│   ├── risk_engine.py
+│   ├── agents.py
+│   ├── recommendations.py
+│   ├── scenario.py
+│   └── command_center.py    # Queue and schematic presentation helpers
+└── tests/                  # Data, risk, agent, and scenario tests
 ```
-
-These directories reserve space for implementation. The plan describes the future application files; empty application stubs have not been added.
 
 ## Planned demo
 
 Advance a synthetic day from 1:00 PM through 4:00 PM. Load and heat rise, fire-weather conditions worsen, and an asset anomaly on C-184 creates the main incident. Inspect the combined evidence and the synthetic impact of **8,420 customers and one hospital**, then approve, modify, or reject a simulated response. Review the resulting state and decision log. A short outage/restoration branch demonstrates incident response as well as prevention.
 
-## Stack and running the app
+## Setup and local verification
 
-Planned runtime dependencies: Python, Streamlit, pandas, NumPy, and Plotly. Use Python's standard `unittest` library for focused logic tests. Optional LLM support comes after the complete offline demo.
+Verified on Python **3.14.7**, macOS arm64, with pandas **3.0.6** and Streamlit
+**1.64.0**, plus Plotly **7.1.0** for the offline schematic. NumPy arrives
+through pandas; optional LLM dependencies remain deferred.
 
-There is no runnable app yet. Once `app.py` and the dependency file are implemented, the expected local workflow is:
+From the project root:
 
 ```sh
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
+python -m src.data_generator
+python -m unittest discover -s tests -v
+python -m src.ontology
+python -m src.scenario
 python -m streamlit run app.py
 ```
 
-Exact compatible versions and fresh-environment setup will be verified during implementation.
+Installation needs network access. Data generation, tests, the CLI scenario, and
+the Command Center work without external services or API keys. Open the local URL
+printed by Streamlit and use Ctrl-C to stop it. Follow the [Command Center walkthrough](docs/COMMAND_CENTER.md):
+start playback, continue after each automatic pause, inspect the highest-priority incident, then Reset.
+
+The generator defaults to seed 42. It writes 18 assets, 6 circuits, 15 weather
+records (3 zones × 5 stages), 12 customer areas, 3 facilities, and 4 crews.
+Use `--seed 100 --output-dir /tmp/gridguard-sample` to inspect a separate variant.
+See [the data contract](data/README.md) for units, fields, and modeling assumptions.
+
+Verified relationship: **T-882 → C-184 → 4,200 + 4,220 = 8,420 customer accounts**,
+plus **F-001, Synthetic Foothill Hospital**, the only critical facility on C-184.
+The facility is already included in the customer count. Impact helpers deduplicate
+circuits before joining customer areas and facilities. They model circuit-wide
+exposure, not detailed electrical connectivity or predicted outages.
+
+The 58 tests verify the original data contracts plus risk boundaries, agent evidence,
+weather-only behavior, incident deduplication, exact main-incident timing, reset,
+and non-executing recommendations. Original source briefs remain unchanged.
+UI tests also check rerun safety, stable selection, continuous slider movement, speed
+controls, and two complete playback/reset runs. Work stops after Phase 7; Phase 8 will
+add investigation and human approval.
+
+Run `python -m src.scenario` for the readable five-stage demonstration, or add
+`--json` for full evidence. Read [the scoring and agent contract](docs/SCORING.md)
+for weights, thresholds, and modeling decisions, and [the saved walkthrough](docs/PHASE_4_6_DEMO.md)
+for sample output. At 4:00 PM, T-882 combines an electrical anomaly with 46 mph
+wind and 11% humidity, producing an 88.4/100 CRITICAL combined prototype indicator.
+Three overlapping category findings still expose only 8,420 accounts and one
+hospital. No electricity state or crew availability changes: recommendations are
+proposals that require human review. The approval workflow is not implemented yet.
 
 ## Screenshots and demo recording
 
@@ -91,7 +141,7 @@ Add screenshots of the command center, incident investigation, and decision log 
 
 ## Limitations and roadmap
 
-The first build uses synthetic fixtures, heuristic risk indicators, a simplified circuit model, and session-local state. It will not include real utility integrations, electrical power-flow calculations, authentication, a production database, or operational grid commands. Risk scores are not validated probabilities, and the prototype does not establish real-world safety or reliability improvements.
+The first build uses synthetic fixtures centered around Santa Clarita, heuristic risk indicators, a simplified circuit model, and session-local state. It will not include real utility integrations, electrical power-flow calculations, authentication, a production database, or operational grid commands. Risk scores are not validated probabilities, and the prototype does not establish real-world safety or reliability improvements.
 
 Build the deterministic demo first, then consider optional LLM explanations, a recorded interview walkthrough, and stronger evaluation. Production integration belongs to a separate effort.
 

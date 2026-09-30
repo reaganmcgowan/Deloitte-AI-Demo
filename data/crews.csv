@@ -1,0 +1,5 @@
+crew_id,available,location,zone_id,skill_type
+CR-01,True,Synthetic Foothill Depot,Z-01,electrical_inspection
+CR-02,False,Synthetic Foothill Depot,Z-01,electrical_inspection
+CR-03,True,Synthetic Valley Depot,Z-02,electrical_inspection
+CR-04,True,Synthetic Ridge Depot,Z-03,line_repair
