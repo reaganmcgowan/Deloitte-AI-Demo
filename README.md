@@ -8,6 +8,22 @@ GridGuard explores how a fictional California electric utility can connect grid,
 
 > GridGuard is a conceptual prototype using synthetic data. It is not a real grid-control, wildfire-prediction, or emergency-response system.
 
+## Run the dashboard
+
+From the repository root, install the tested dependencies and start Streamlit:
+
+```sh
+python3 -m venv .venv
+source .venv/bin/activate       # Windows: .venv\\Scripts\\activate
+python -m pip install -r requirements.txt
+streamlit run app.py
+```
+
+Open the local URL printed by Streamlit, usually `http://localhost:8501`. The dashboard
+works offline with synthetic data and does not require an API key. Start on the
+**Command Center** tab, or open **About** first for the problem statement and solution
+overview. Use **Reset** before replaying the scenario.
+
 ## Start here
 
 1. [Problem decomposition](docs/GRIDGUARD_DECOMPOSITION.md): client, stakeholders, use cases, research, and interview framing.
